@@ -1,5 +1,10 @@
 # MedSynth
 
+[![PyPI](https://img.shields.io/pypi/v/e2llm-medsynth)](https://pypi.org/project/e2llm-medsynth/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://github.com/e2llm/medsynth/actions/workflows/test.yml/badge.svg)](https://github.com/e2llm/medsynth/actions/workflows/test.yml)
+
 Multi-lingual synthetic healthcare data generator. Produces realistic medical records with intentional OCR artifacts and schema variance — simulating real-world messy healthcare data.
 
 ## The Problem
@@ -37,14 +42,13 @@ Different hospitals format records differently. MedSynth produces variant schema
 ## Installation
 
 ```bash
-pip install -e .
+pip install e2llm-medsynth
 ```
 
 ### Quick Start
 
 ```bash
-git clone https://github.com/e2llm/medsynth.git
-cd medsynth && pip install -e .
+pip install e2llm-medsynth
 
 # Structured data only (no LLM needed)
 medsynth --locale he_IL --num-patients 10 --skip-freetext -v
@@ -128,6 +132,7 @@ medsynth --api-base http://localhost:4000/v1 --model claude-haiku-4-5 -v
 | `--api-base` | `http://localhost:11434/v1` | API base URL (any OpenAI-compatible endpoint) |
 | `--api-key` | — | API key (or set `LLM_API_KEY` / `OPENAI_API_KEY` env var) |
 | `--skip-freetext` | off | Skip LLM calls for free text |
+| `--force` | off | Overwrite existing output files |
 | `-v` / `--verbose` | off | Verbose output |
 
 ## Python API

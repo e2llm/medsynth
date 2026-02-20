@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "medsynth"
+name = "e2llm-medsynth"
 version = "0.1.0"
 description = "Synthetic medical record generator with realistic schema variance across locales"
 readme = "README.md"
