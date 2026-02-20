@@ -7,6 +7,7 @@ import os
 import random
 import sys
 from datetime import timedelta
+from urllib.parse import urlparse
 
 from . import config
 from .locales import load_locale
@@ -29,6 +30,12 @@ def _random_doc_date(rng: random.Random) -> str:
     return d.isoformat()
 
 
+def _is_local_endpoint(url: str) -> bool:
+    """Check if a URL points to a local endpoint."""
+    hostname = urlparse(url).hostname or ""
+    return hostname in ("localhost", "127.0.0.1", "::1", "0.0.0.0") or hostname.endswith(".local")
+
+
 def generate_documents(
     num_patients: int,
     seed: int,
@@ -39,6 +46,7 @@ def generate_documents(
     locale_code: str | None = None,
     skip_freetext: bool = False,
     verbose: bool = False,
+    force: bool = False,
     # Backwards compat — ignored if model is set
     openai_model: str | None = None,
 ) -> dict[str, int]:
@@ -47,6 +55,14 @@ def generate_documents(
     locale = load_locale(locale_code or config.DEFAULT_LOCALE)
     rng = random.Random(seed + 1)  # offset from patient seed to avoid RNG correlation
     os.makedirs(output_dir, exist_ok=True)
+
+    if not force and os.path.isdir(output_dir):
+        existing = [f for f in os.listdir(output_dir) if f.endswith(".ndjson")]
+        if existing:
+            raise FileExistsError(
+                f"{output_dir}/ contains {len(existing)} .ndjson files. "
+                f"Use --force to overwrite."
+            )
 
     # Step 1: Generate patient pool
     if verbose:
@@ -184,6 +200,8 @@ def main():
                         help="Locale code (default: he_IL)")
     parser.add_argument("--skip-freetext", action="store_true",
                         help="Skip LLM calls for free text generation")
+    parser.add_argument("--force", action="store_true",
+                        help="Overwrite existing output files")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -198,8 +216,7 @@ def main():
     api_base = args.api_base or os.environ.get("LLM_API_BASE", config.DEFAULT_API_BASE)
 
     # Only require an API key for remote providers (not Ollama)
-    is_local = "localhost" in api_base or "127.0.0.1" in api_base
-    if not args.skip_freetext and not is_local:
+    if not args.skip_freetext and not _is_local_endpoint(api_base):
         key = (
             args.api_key
             or os.environ.get("LLM_API_KEY")
@@ -224,6 +241,7 @@ def main():
         locale_code=args.locale,
         skip_freetext=args.skip_freetext,
         verbose=args.verbose,
+        force=args.force,
     )
 
     print(f"\nDone. {sum(counts.values())} documents across {len(counts)} indices.")

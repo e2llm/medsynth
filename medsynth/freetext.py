@@ -14,27 +14,31 @@ _RETRYABLE = (APIConnectionError, APITimeoutError, RateLimitError)
 _MAX_RETRIES = 3
 
 _client = None
+_client_key = None
 
 
 def _get_client(api_base: str | None = None, api_key: str | None = None) -> OpenAI:
-    global _client
-    if _client is None:
-        base = api_base or os.environ.get("LLM_API_BASE", config.DEFAULT_API_BASE)
-        key = (
-            api_key
-            or os.environ.get("LLM_API_KEY")
-            or os.environ.get("OPENAI_API_KEY")
-            or os.environ.get("MOONSHOT_API_KEY")
-            or "ollama"  # Ollama ignores the key but the client requires one
-        )
+    global _client, _client_key
+    base = api_base or os.environ.get("LLM_API_BASE", config.DEFAULT_API_BASE)
+    key = (
+        api_key
+        or os.environ.get("LLM_API_KEY")
+        or os.environ.get("OPENAI_API_KEY")
+        or os.environ.get("MOONSHOT_API_KEY")
+        or "ollama"  # Ollama ignores the key but the client requires one
+    )
+    cache_key = (base, key)
+    if _client is None or _client_key != cache_key:
         _client = OpenAI(base_url=base, api_key=key)
+        _client_key = cache_key
     return _client
 
 
 def reset_client():
     """Reset cached client (useful when switching providers in tests)."""
-    global _client
+    global _client, _client_key
     _client = None
+    _client_key = None
 
 
 def generate_clinical_text(

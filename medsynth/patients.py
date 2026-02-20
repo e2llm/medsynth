@@ -26,11 +26,9 @@ def generate_patients(num_patients: int, seed: int, locale: LocaleConfig) -> lis
         house_num = rng.randint(1, config.MAX_HOUSE_NUMBER)
 
         # Generate ID here to preserve RNG sequence (original position in dict literal).
-        # For locales where ID encodes patient data, a partial dict can be passed.
+        # Spread name dict so locale-specific keys (e.g. apellido_materno) reach ID generators.
         partial_patient = {
-            "first_name": name["first_name"],
-            "last_name": name["last_name"],
-            "full_name": name["full_name"],
+            **name,
             "gender": gender,
             "date_of_birth": dob.isoformat(),
             "age": age,
@@ -40,9 +38,7 @@ def generate_patients(num_patients: int, seed: int, locale: LocaleConfig) -> lis
 
         patient = {
             "id": patient_id,
-            "first_name": name["first_name"],
-            "last_name": name["last_name"],
-            "full_name": name["full_name"],
+            **name,
             "gender": gender,
             "date_of_birth": dob.isoformat(),
             "age": age,

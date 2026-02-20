@@ -198,7 +198,17 @@ def pick_contradiction(patient: dict, doc: dict, rng: random.Random, locale: Loc
             "text_should_say": text,
         }
     elif contradiction_type == "age":
-        real_age = patient["age"]
+        # Use the doc's computed age (per document date) instead of static patient age
+        age_fields = _concept_field_names(locale, "age")
+        real_age = None
+        for k in doc:
+            if k in age_fields:
+                val = doc[k]
+                if isinstance(val, int):
+                    real_age = val
+                break
+        if real_age is None:
+            return None
         fake_age = real_age + rng.choice(config.AGE_CONTRADICTION_OFFSETS)
         if fake_age < 0:
             fake_age = real_age + 10
