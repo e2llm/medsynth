@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medsynth"
+version = "0.1.0"
+description = "Synthetic medical record generator with realistic schema variance across locales"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = ["openai>=1.0", "python-dotenv"]
+keywords = ["synthetic-data", "medical-records", "ehr", "elasticsearch", "testing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Repository = "https://github.com/e2llm/medsynth"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+medsynth = "medsynth.generate:main"
+
+[tool.setuptools.package-data]
+medsynth = ["sample_data/**/*.ndjson"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
